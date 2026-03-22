@@ -1,5 +1,11 @@
 const bcrypt = require('bcrypt');
-const { pool } = require('../src/config/db');
+const { Pool } = require('pg');
+
+// Direct connection for seeding (bypass app config)
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: false // Disable SSL for seeding
+});
 
 const main = async () => {
   const name = process.env.SEED_ADMIN_NAME || 'Admin';
