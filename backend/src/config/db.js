@@ -1,16 +1,18 @@
 const { Pool } = require('pg');
-const { env } = require('./env');
 
 const pool = new Pool({
-  host: env.db.host,
-  port: env.db.port,
-  user: env.db.user,
-  password: env.db.password,
-  database: env.db.database,
+  connectionString: process.env.DATABASE_URL,
   max: 20,
   idleTimeoutMillis: 30000,
-  ssl: false
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
+
+// Optional: Test connection on startup
+pool.connect()
+  .then(() => console.log("✅ Connected to Supabase DB"))
+  .catch(err => console.error("❌ DB Connection Error:", err));
 
 const query = async (text, params) => {
   const start = Date.now();
