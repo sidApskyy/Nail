@@ -1,0 +1,45 @@
+services:
+  # Backend API Service
+  - type: web
+    name: nail-studio-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false  # Will be set manually in Render dashboard
+      - key: CORS_ORIGIN
+        value: https://nail-studio-frontend.onrender.com
+      - key: ACCESS_TOKEN_SECRET
+        sync: false  # Will be set manually
+      - key: REFRESH_TOKEN_SECRET
+        sync: false  # Will be set manually
+      - key: ACCESS_TOKEN_TTL
+        value: 15m
+      - key: REFRESH_TOKEN_TTL
+        value: 7d
+      - key: REFRESH_COOKIE_NAME
+        value: rt
+      - key: UPLOAD_DIR
+        value: uploads
+
+  # Frontend Static Site
+  - type: web
+    name: nail-studio-frontend
+    runtime: static
+    plan: free
+    buildCommand: cd ../frontend && npm install && npm run build
+    staticPublishPath: ../frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://nail-studio-backend.onrender.com
