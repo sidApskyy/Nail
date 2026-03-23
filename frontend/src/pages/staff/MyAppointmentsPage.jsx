@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import '../../styles/staff-portal.css';
 
 export function MyAppointmentsPage() {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -166,7 +168,7 @@ export function MyAppointmentsPage() {
                   </Button>
                 ) : (
                   <Button
-                    onClick={() => window.location.href = '/staff/create-appointment'}
+                    onClick={() => navigate('/staff/create-appointment')}
                     className="primary-button"
                   >
                     Create First Appointment
@@ -209,7 +211,7 @@ export function MyAppointmentsPage() {
                     {appointment.status === 'pending' && (
                       <div className="appointment-actions">
                         <Button
-                          onClick={() => window.location.href = `/staff/upload-work?appointment=${appointment.id}`}
+                          onClick={() => navigate('/staff/upload-work', { state: { appointmentId: appointment.id } })}
                           className="upload-work-btn"
                         >
                           📸 Upload Work
