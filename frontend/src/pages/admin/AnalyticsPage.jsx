@@ -223,7 +223,7 @@ export function AnalyticsPage() {
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto animate-fade-in my-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[85vh] overflow-hidden animate-fade-in flex flex-col">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white rounded-t-2xl">
             <div className="flex items-center justify-between">
@@ -248,8 +248,8 @@ export function AnalyticsPage() {
           </div>
           
           {/* Enhanced Performance Summary */}
-          <div className="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 bg-gradient-to-br from-slate-50 to-blue-50 flex-shrink-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="text-center p-4 bg-white rounded-xl shadow-lg">
                 <div className="text-3xl font-bold text-blue-600">{salesCount}</div>
                 <div className="text-sm text-slate-600 mt-1">Total Works</div>
@@ -270,7 +270,7 @@ export function AnalyticsPage() {
           </div>
           
           {/* Enhanced Staff Candlestick Chart */}
-          <div className="p-6">
+          <div className="p-4 flex-1 overflow-y-auto">
             <h4 className="text-xl font-bold text-slate-900 mb-4">Daily Performance Column Chart</h4>
             <div className="text-sm text-slate-600 mb-4">
               X-Axis: Days | Y-Axis: Sales Count & Customer Attendance
@@ -285,8 +285,8 @@ export function AnalyticsPage() {
                 <p>No daily performance data available</p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-shadow duration-300" onClick={() => setStaffChartModalOpen(true)}>
-                <div className="relative h-64 sm:h-80 bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 rounded-lg p-2 sm:p-4 overflow-x-auto">
+              <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 cursor-pointer hover:shadow-lg transition-shadow duration-300" onClick={() => setStaffChartModalOpen(true)}>
+                <div className="relative h-48 sm:h-56 bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 rounded-lg p-2 sm:p-3 overflow-x-auto">
                   {/* Enhanced grid lines */}
                   <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                     {[...Array(5)].map((_, i) => (
@@ -393,7 +393,7 @@ export function AnalyticsPage() {
           </div>
           
           {/* Completed Works List */}
-          <div className="p-4 sm:p-6">
+          <div className="p-4 border-t border-slate-200">
             <h4 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">Completed Works Details</h4>
             
             {staffLoading ? (
@@ -406,7 +406,7 @@ export function AnalyticsPage() {
                 <p className="text-sm sm:text-base">No completed works found for this staff member</p>
               </div>
             ) : (
-              <div className="space-y-3 sm:space-y-4 max-h-64 sm:max-h-96 overflow-y-auto">
+              <div className="space-y-3 sm:space-y-4 max-h-48 sm:max-h-64 overflow-y-auto">
                 {staffDetailedSales.map((work, index) => (
                   <div key={work.id} className="bg-white border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:shadow-lg transition-shadow duration-300">
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
