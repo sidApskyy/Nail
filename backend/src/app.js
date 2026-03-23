@@ -40,13 +40,14 @@ if (!fs.existsSync(uploadsPath)) {
   console.log('Uploads directory exists:', uploadsPath);
 }
 
-app.use('/uploads', express.static(uploadsPath, {
-  setHeaders: (res, path) => {
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
-  }
-}));
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  express.static(uploadsPath)(req, res, next);
+});
 
 app.get('/health', (req, res) => {
   res.json({ success: true, message: 'OK', data: null });
