@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import { Card } from '../../components/Card';
 import { Input } from '../../components/Input';
@@ -8,6 +8,7 @@ import '../../styles/staff-portal.css';
 
 export function UploadWorkPage() {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [appointments, setAppointments] = useState([]);
   const [appointmentId, setAppointmentId] = useState('');
   const [name, setName] = useState('');
@@ -36,13 +37,16 @@ export function UploadWorkPage() {
       .then((res) => {
         const all = res.data?.data || [];
         setAppointments(all);
-        // Auto-select appointment if passed via state
-        if (location.state?.appointmentId) {
-          setAppointmentId(location.state.appointmentId);
+        // Auto-select appointment if passed via state or URL params
+        const appointmentIdFromState = location.state?.appointmentId;
+        const appointmentIdFromUrl = searchParams.get('appointment');
+        const selectedAppointmentId = appointmentIdFromState || appointmentIdFromUrl;
+        if (selectedAppointmentId) {
+          setAppointmentId(selectedAppointmentId);
         }
       })
       .catch(() => {});
-  }, [location.state?.appointmentId]);
+  }, [location.state?.appointmentId, searchParams]);
 
   useEffect(() => {
     const amt = parseFloat(amount) || 0;
