@@ -40,17 +40,49 @@ if (!fs.existsSync(uploadsPath)) {
   console.log('Uploads directory exists:', uploadsPath);
 }
 
+// Serve uploaded files with proper CORS headers
 app.use('/uploads', (req, res, next) => {
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
-  express.static(uploadsPath)(req, res, next);
-});
+  // Set CORS headers for all requests
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Cache-Control', 'public, max-age=86400');
+  
+  // Handle OPTIONS preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+}, express.static(uploadsPath));
 
 app.get('/health', (req, res) => {
   res.json({ success: true, message: 'OK', data: null });
+});
+
+// Direct test image route
+app.get('/test-image', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const imagePath = path.join(uploadsPath, '1774286972658_image00007.jpeg');
+  
+  if (fs.existsSync(imagePath)) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cache-Control', 'public, max-age=86400');
+    res.sendFile(imagePath);
+  } else {
+    res.status(404).json({ 
+      success: false, 
+      message: 'Test image not found',
+      data: { 
+        imagePath,
+        uploadsPath,
+        directoryExists: fs.existsSync(uploadsPath)
+      }
+    });
+  }
 });
 
 app.get('/debug/uploads', (req, res) => {
