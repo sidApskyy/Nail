@@ -28,9 +28,17 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Serve uploaded files statically
+// Ensure uploads directory exists and serve files statically
+const fs = require('fs');
 const uploadsPath = path.join(process.cwd(), env.uploads.dir);
-console.log('Serving uploads from:', uploadsPath);
+
+// Create uploads directory if it doesn't exist
+if (!fs.existsSync(uploadsPath)) {
+  console.log('Creating uploads directory:', uploadsPath);
+  fs.mkdirSync(uploadsPath, { recursive: true });
+} else {
+  console.log('Uploads directory exists:', uploadsPath);
+}
 
 app.use('/uploads', express.static(uploadsPath, {
   setHeaders: (res, path) => {
@@ -49,6 +57,18 @@ app.get('/debug/uploads', (req, res) => {
   const path = require('path');
   const uploadsPath = path.join(process.cwd(), env.uploads.dir);
   
+  // Check if directory exists
+  if (!fs.existsSync(uploadsPath)) {
+    return res.status(404).json({ 
+      success: false, 
+      message: 'Uploads directory does not exist',
+      data: {
+        uploadsPath,
+        suggestion: 'Directory will be created when first file is uploaded'
+      }
+    });
+  }
+  
   try {
     const files = fs.readdirSync(uploadsPath);
     res.json({ 
@@ -57,14 +77,19 @@ app.get('/debug/uploads', (req, res) => {
       data: {
         uploadsPath,
         files: files.slice(0, 10), // Show first 10 files
-        totalFiles: files.length
+        totalFiles: files.length,
+        directoryExists: true
       }
     });
   } catch (error) {
     res.status(500).json({ 
       success: false, 
       message: 'Error reading uploads directory',
-      error: error.message 
+      error: error.message,
+      data: {
+        uploadsPath,
+        directoryExists: fs.existsSync(uploadsPath)
+      }
     });
   }
 });
