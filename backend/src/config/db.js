@@ -1,28 +1,51 @@
 // config/db.js
+
 const { Pool } = require('pg');
 const { env } = require('./env');
 
-// Create a Postgres pool
+// Create PostgreSQL connection pool
 const pool = new Pool({
-  connectionString: env.databaseUrl, // Use env.js for consistency
-  max: 20, // max clients in the pool
+  connectionString: env.databaseUrl,
+
+  // Pool settings
+  max: 20,
   idleTimeoutMillis: 30000,
-  ssl: { 
-    rejectUnauthorized: false // Required for Render → Supabase
+
+  // 🔥 REQUIRED for Supabase (SSL)
+  ssl: {
+    rejectUnauthorized: false
   },
+
+  // 🔥 CRITICAL FIX: Force IPv4 (fixes ENETUNREACH error on Render)
+  family: 4
 });
 
-// Optional: Test DB connection on startup
+// Test DB connection on startup
 pool.connect()
-  .then(() => console.log('✅ Connected to Supabase DB'))
-  .catch(err => console.error('❌ DB Connection Error:', err));
+  .then(() => {
+    console.log("✅ Connected to Supabase DB");
+  })
+  .catch((err) => {
+    console.error("❌ DB Connection Error:", err);
+  });
 
-// Query helper
+// Helper function for queries
 const query = async (text, params) => {
   const start = Date.now();
-  const res = await pool.query(text, params);
-  res.duration = Date.now() - start;
-  return res;
+  try {
+    const res = await pool.query(text, params);
+    const duration = Date.now() - start;
+
+    // Optional: log slow queries
+    if (duration > 500) {
+      console.log('⚠️ Slow query detected:', { text, duration });
+    }
+
+    return res;
+  } catch (err) {
+    console.error('❌ Query Error:', err);
+    throw err;
+  }
 };
 
 module.exports = { pool, query };
