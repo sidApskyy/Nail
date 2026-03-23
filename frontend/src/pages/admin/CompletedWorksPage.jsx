@@ -15,6 +15,12 @@ export function CompletedWorksPage() {
     if (!imageUrl) return '';
     if (/^https?:\/\//i.test(imageUrl)) return imageUrl;
     const base = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+    
+    // Fallback to test route for debugging
+    if (imageUrl.includes('1774286972658_image00007.jpeg')) {
+      return `${base}/test-image`;
+    }
+    
     return `${base}${imageUrl}`;
   };
 
