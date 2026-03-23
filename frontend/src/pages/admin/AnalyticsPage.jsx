@@ -223,7 +223,7 @@ export function AnalyticsPage() {
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto animate-fade-in">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto animate-fade-in my-4">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white rounded-t-2xl">
             <div className="flex items-center justify-between">
@@ -249,7 +249,7 @@ export function AnalyticsPage() {
           
           {/* Enhanced Performance Summary */}
           <div className="p-6 bg-gradient-to-br from-slate-50 to-blue-50">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-white rounded-xl shadow-lg">
                 <div className="text-3xl font-bold text-blue-600">{salesCount}</div>
                 <div className="text-sm text-slate-600 mt-1">Total Works</div>
@@ -285,8 +285,8 @@ export function AnalyticsPage() {
                 <p>No daily performance data available</p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 p-6 cursor-pointer hover:shadow-lg transition-shadow duration-300" onClick={() => setStaffChartModalOpen(true)}>
-                <div className="relative h-64 bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 rounded-lg p-4 overflow-x-auto">
+              <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-shadow duration-300" onClick={() => setStaffChartModalOpen(true)}>
+                <div className="relative h-64 sm:h-80 bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 rounded-lg p-2 sm:p-4 overflow-x-auto">
                   {/* Enhanced grid lines */}
                   <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                     {[...Array(5)].map((_, i) => (
@@ -295,16 +295,16 @@ export function AnalyticsPage() {
                   </div>
                   
                   {/* Enhanced Y-axis labels */}
-                  <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-slate-500 -ml-12">
-                    <div className="font-semibold">{maxSales}</div>
-                    <div>{Math.round(maxSales * 0.75)}</div>
-                    <div>{Math.round(maxSales * 0.5)}</div>
-                    <div>{Math.round(maxSales * 0.25)}</div>
-                    <div className="font-semibold">0</div>
+                  <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-slate-500 -ml-8 sm:-ml-12">
+                    <div className="font-semibold text-xs sm:text-sm">{maxSales}</div>
+                    <div className="text-xs">{Math.round(maxSales * 0.75)}</div>
+                    <div className="text-xs">{Math.round(maxSales * 0.5)}</div>
+                    <div className="text-xs">{Math.round(maxSales * 0.25)}</div>
+                    <div className="font-semibold text-xs sm:text-sm">0</div>
                   </div>
                   
                   {/* Enhanced column chart with proper spacing */}
-                  <div className="relative h-full flex items-end justify-start px-6" style={{ minWidth: `${chartData.length * 80}px` }}>
+                  <div className="relative h-full flex items-end justify-start px-2 sm:px-6" style={{ minWidth: `${Math.min(chartData.length * 60, 800)}px` }}>
                     {chartData.map((item, index) => {
                       const salesCount = item.sales;
                       const customerCount = item.customers;
@@ -316,25 +316,25 @@ export function AnalyticsPage() {
                       const performancePercent = avgDailySales > 0 ? ((salesCount - avgDailySales) / avgDailySales) * 100 : 0;
                       
                       return (
-                        <div key={index} className="relative flex flex-col items-center group mx-3" style={{ minWidth: '50px' }}>
+                        <div key={index} className="relative flex flex-col items-center group mx-1 sm:mx-3" style={{ minWidth: '40px', maxWidth: '60px' }}>
                           {/* Sales Count Column */}
-                          <div className="relative flex flex-col items-center mb-2">
+                          <div className="relative flex flex-col items-center mb-1 sm:mb-2">
                             <div 
-                              className={`w-10 rounded-t-lg transition-all duration-1000 ease-out shadow-lg transform hover:scale-105 ${
+                              className={`w-6 sm:w-10 rounded-t-lg transition-all duration-1000 ease-out shadow-lg transform hover:scale-105 ${
                                 isPositive 
                                   ? 'bg-gradient-to-t from-green-500 via-emerald-500 to-green-400' 
                                   : 'bg-gradient-to-t from-red-500 via-orange-500 to-red-400'
                               }`}
                               style={{ 
-                                height: `${salesHeight * 2.5}px`,
+                                height: `${salesHeight * 2}px`,
                                 animationDelay: `${index * 100}ms`,
                                 animation: 'slideUp 0.8s ease-out forwards',
                                 opacity: 0
                               }}
                             >
                               {/* Performance indicator on column */}
-                              <div className="absolute top-2 left-2 right-2 text-center">
-                                <span className={`text-xs font-bold ${
+                              <div className="absolute top-1 left-1 right-1 text-center">
+                                <span className={`text-[8px] sm:text-xs font-bold ${
                                   isPositive ? 'text-white' : 'text-white'
                                 }`}>
                                   {performancePercent > 0 ? '+' : ''}{performancePercent.toFixed(0)}%
@@ -344,16 +344,16 @@ export function AnalyticsPage() {
                             
                             {/* Customer Count Column */}
                             <div 
-                              className="w-8 rounded-t-lg transition-all duration-1000 ease-out shadow-lg transform hover:scale-105 bg-gradient-to-t from-blue-500 via-purple-500 to-blue-400"
+                              className="w-4 sm:w-8 rounded-t-lg transition-all duration-1000 ease-out shadow-lg transform hover:scale-105 bg-gradient-to-t from-blue-500 via-purple-500 to-blue-400"
                               style={{ 
-                                height: `${customersHeight * 2.5}px`,
+                                height: `${customersHeight * 2}px`,
                                 animationDelay: `${index * 150}ms`,
                                 animation: 'slideUp 0.8s ease-out forwards',
                                 opacity: 0
                               }}
                             >
                               <div className="absolute top-1 left-1 right-1 text-center">
-                                <span className="text-xs font-bold text-white">
+                                <span className="text-[8px] sm:text-xs font-bold text-white">
                                   {customerCount}
                                 </span>
                               </div>
@@ -361,10 +361,10 @@ export function AnalyticsPage() {
                           </div>
                           
                           {/* Enhanced X-axis label */}
-                          <div className="mt-2 text-xs text-slate-600 text-center font-medium">
+                          <div className="mt-1 sm:mt-2 text-[8px] sm:text-xs text-slate-600 text-center font-medium">
                             <div>
                               <div>{new Date(item.date).getDate()}</div>
-                              <div className="text-[10px] text-slate-400">{new Date(item.date).toLocaleDateString('en-IN', { month: 'short' })}</div>
+                              <div className="text-[6px] sm:text-[10px] text-slate-400">{new Date(item.date).toLocaleDateString('en-IN', { month: 'short' })}</div>
                             </div>
                           </div>
                         </div>
@@ -374,18 +374,18 @@ export function AnalyticsPage() {
                 </div>
                 
                 {/* Enhanced Legend */}
-                <div className="flex justify-center space-x-8 mt-4 text-xs">
+                <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4 lg:space-x-8 mt-4 text-xs">
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-gradient-to-t from-green-500 via-emerald-500 to-green-400 rounded-t-lg shadow-md"></div>
-                    <span className="text-slate-700 font-medium">Above Average Sales</span>
+                    <div className="w-4 sm:w-6 h-4 sm:h-6 bg-gradient-to-t from-green-500 via-emerald-500 to-green-400 rounded-t-lg shadow-md"></div>
+                    <span className="text-slate-700 font-medium text-xs sm:text-sm">Above Average Sales</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-gradient-to-t from-red-500 via-orange-500 to-red-400 rounded-t-lg shadow-md"></div>
-                    <span className="text-slate-700 font-medium">Below Average Sales</span>
+                    <div className="w-4 sm:w-6 h-4 sm:h-6 bg-gradient-to-t from-red-500 via-orange-500 to-red-400 rounded-t-lg shadow-md"></div>
+                    <span className="text-slate-700 font-medium text-xs sm:text-sm">Below Average Sales</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-gradient-to-t from-blue-500 via-purple-500 to-blue-400 rounded-t-lg shadow-md"></div>
-                    <span className="text-slate-700 font-medium">Customer Count</span>
+                    <div className="w-4 sm:w-6 h-4 sm:h-6 bg-gradient-to-t from-blue-500 via-purple-500 to-blue-400 rounded-t-lg shadow-md"></div>
+                    <span className="text-slate-700 font-medium text-xs sm:text-sm">Customer Count</span>
                   </div>
                 </div>
               </div>
@@ -393,8 +393,8 @@ export function AnalyticsPage() {
           </div>
           
           {/* Completed Works List */}
-          <div className="p-6">
-            <h4 className="text-xl font-bold text-slate-900 mb-4">Completed Works Details</h4>
+          <div className="p-4 sm:p-6">
+            <h4 className="text-lg sm:text-xl font-bold text-slate-900 mb-4">Completed Works Details</h4>
             
             {staffLoading ? (
               <div className="flex justify-center py-12">
@@ -402,39 +402,39 @@ export function AnalyticsPage() {
               </div>
             ) : staffDetailedSales.length === 0 ? (
               <div className="text-center py-12 text-slate-500">
-                <div className="text-6xl mb-4">📋</div>
-                <p>No completed works found for this staff member</p>
+                <div className="text-4xl sm:text-6xl mb-4">📋</div>
+                <p className="text-sm sm:text-base">No completed works found for this staff member</p>
               </div>
             ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="space-y-3 sm:space-y-4 max-h-64 sm:max-h-96 overflow-y-auto">
                 {staffDetailedSales.map((work, index) => (
-                  <div key={work.id} className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-lg transition-shadow duration-300">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                  <div key={work.id} className="bg-white border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:shadow-lg transition-shadow duration-300">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base">
                             {work.customer_name?.charAt(0) || 'C'}
                           </div>
-                          <div>
-                            <div className="font-semibold text-slate-900">{work.customer_name}</div>
-                            <div className="text-sm text-slate-600">{work.customer_phone}</div>
+                          <div className="min-w-0 flex-1">
+                            <div className="font-semibold text-slate-900 text-sm sm:text-base truncate">{work.customer_name}</div>
+                            <div className="text-xs sm:text-sm text-slate-600 truncate">{work.customer_phone}</div>
                           </div>
                         </div>
                         
-                        <div className="mt-3 space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm text-slate-600">Service:</span>
-                            <span className="font-medium text-slate-900">{work.service_name}</span>
+                        <div className="mt-2 sm:mt-3 space-y-1 sm:space-y-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                            <span className="text-xs sm:text-sm text-slate-600">Service:</span>
+                            <span className="font-medium text-slate-900 text-xs sm:text-sm truncate">{work.service_name}</span>
                             <span className="text-xs text-slate-500">#{work.service_number}</span>
                           </div>
                           
                           {work.description && (
-                            <div className="text-sm text-slate-600 bg-slate-50 p-2 rounded">
+                            <div className="text-xs sm:text-sm text-slate-600 bg-slate-50 p-2 rounded text-xs">
                               {work.description}
                             </div>
                           )}
                           
-                          <div className="flex items-center space-x-4 text-sm">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs sm:text-sm">
                             <div>
                               <span className="text-slate-600">Amount:</span>
                               <span className="font-medium text-slate-900">₹{work.amount || 0}</span>
@@ -447,14 +447,14 @@ export function AnalyticsPage() {
                             )}
                             <div>
                               <span className="text-slate-600">Total:</span>
-                              <span className="font-bold text-green-600 text-lg">{formatCurrency(work.total)}</span>
+                              <span className="font-bold text-green-600 text-sm sm:text-lg">{formatCurrency(work.total)}</span>
                             </div>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="ml-4">
-                        <div className="text-xs text-slate-500 mb-2">
+                      <div className="flex sm:ml-4 flex-row sm:flex-col items-center gap-2">
+                        <div className="text-xs text-slate-500 text-center">
                           {new Date(work.created_at).toLocaleDateString('en-IN', {
                             day: 'numeric',
                             month: 'short',
@@ -463,9 +463,9 @@ export function AnalyticsPage() {
                         </div>
                         {work.image_url && (
                           <img
-                            src={work.image_url.startsWith('http') ? work.image_url : `http://localhost:4000${work.image_url}`}
+                            src={work.image_url.startsWith('http') ? work.image_url : `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}${work.image_url}`}
                             alt="Completed work"
-                            className="w-20 h-20 object-cover rounded-lg border border-slate-200"
+                            className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-slate-200"
                           />
                         )}
                       </div>
