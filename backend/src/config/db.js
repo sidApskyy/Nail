@@ -1,26 +1,26 @@
-// config/db.js
-
 const { Pool } = require('pg');
 const { env } = require('./env');
 
-// Create PostgreSQL connection pool
+const isProduction = env.nodeEnv === 'production';
+
 const pool = new Pool({
   connectionString: env.databaseUrl,
 
-  // Pool settings
   max: 20,
   idleTimeoutMillis: 30000,
 
-  // 🔥 REQUIRED for Supabase (SSL)
-  ssl: {
-    rejectUnauthorized: false
-  },
+  // ✅ Bulletproof SSL handling
+  ssl: isProduction
+    ? {
+        rejectUnauthorized: false
+      }
+    : false,
 
-  // 🔥 CRITICAL FIX: Force IPv4 (fixes ENETUNREACH error on Render)
+  // ✅ Force IPv4 (Render fix)
   family: 4
 });
 
-// Test DB connection on startup
+// Test connection
 pool.connect()
   .then(() => {
     console.log("✅ Connected to Supabase DB");
@@ -29,14 +29,12 @@ pool.connect()
     console.error("❌ DB Connection Error:", err);
   });
 
-// Helper function for queries
 const query = async (text, params) => {
   const start = Date.now();
   try {
     const res = await pool.query(text, params);
     const duration = Date.now() - start;
 
-    // Optional: log slow queries
     if (duration > 500) {
       console.log('⚠️ Slow query detected:', { text, duration });
     }
