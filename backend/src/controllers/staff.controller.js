@@ -27,11 +27,11 @@ const myAppointments = asyncHandler(async (req, res) => {
 });
 
 const uploadWork = asyncHandler(async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json(apiResponse({ success: false, message: 'Image file is required', data: null }));
+  // Make image optional - only set imageUrl if file exists
+  let imageUrl = null;
+  if (req.file) {
+    imageUrl = `/uploads/${path.basename(req.file.path)}`;
   }
-
-  const imageUrl = `/uploads/${path.basename(req.file.path)}`;
 
   const work = await completedWorkService.uploadWork({
     actorId: req.effectiveUser.id,

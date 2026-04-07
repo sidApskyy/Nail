@@ -4,7 +4,7 @@ const staffController = require('../controllers/staff.controller');
 const { authenticate } = require('../middlewares/authenticate');
 const { authorize } = require('../middlewares/authorize');
 const { getCurrentStaff } = require('../middlewares/getCurrentStaff');
-const { upload } = require('../middlewares/upload');
+const { upload, uploadOptional } = require('../middlewares/upload');
 const { createAppointmentValidator, uploadWorkValidator, cancelAppointmentValidator } = require('../validators/staff.validators');
 const { validate } = require('../middlewares/validate');
 
@@ -19,7 +19,7 @@ router.get('/my-appointments', staffController.myAppointments);
 
 router.post(
   '/upload-work',
-  upload.single('image'),
+  uploadOptional,
   uploadWorkValidator,
   validate,
   staffController.uploadWork
