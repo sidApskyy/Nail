@@ -64,6 +64,17 @@ export function UploadWorkPage() {
     }
   }, [amount, discount]);
 
+  // Auto-fill customer details when appointment is selected from dropdown
+  useEffect(() => {
+    if (appointmentId && appointments.length > 0) {
+      const selectedAppointment = appointments.find(a => a.id === appointmentId);
+      if (selectedAppointment) {
+        setName(selectedAppointment.customer_name || '');
+        setNumber(selectedAppointment.customer_phone || '');
+      }
+    }
+  }, [appointmentId, appointments]);
+
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
