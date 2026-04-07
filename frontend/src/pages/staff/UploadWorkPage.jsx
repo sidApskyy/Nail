@@ -18,17 +18,10 @@ export function UploadWorkPage() {
   const [total, setTotal] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
-  const [cameraError, setCameraError] = useState('');
-  const [cameraOn, setCameraOn] = useState(false);
-  const [cameraFacing, setCameraFacing] = useState('environment');
-  const [capturedUrl, setCapturedUrl] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const streamRef = useRef(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -128,14 +121,8 @@ export function UploadWorkPage() {
       setTotal('');
       setDescription('');
       setImage(null);
-      setCapturedUrl('');
-      setImage(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
-      }
-      if (capturedUrl) {
-        URL.revokeObjectURL(capturedUrl);
-        setCapturedUrl('');
       }
 
       const refreshed = await api.get('/staff/my-appointments');
@@ -147,141 +134,22 @@ export function UploadWorkPage() {
     }
   };
 
-  const stopCamera = () => {
-    const stream = streamRef.current;
-    if (stream) {
-      stream.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    if (videoRef.current) {
-      // eslint-disable-next-line no-param-reassign
-      videoRef.current.srcObject = null;
-    }
-    setCameraOn(false);
-  };
-
-  const startCamera = async () => {
-    setCameraError('');
-    try {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        setCameraError('Camera not supported in this browser');
-        return;
-      }
-
-      // Ensure any existing stream is stopped
-      stopCamera();
-
-      let stream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: cameraFacing },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false
-        });
-      } catch (e) {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-      }
-
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-        await new Promise(r => setTimeout(r, 100));
-        videoRef.current.srcObject = stream;
-        await new Promise((resolve) => {
-          const v = videoRef.current;
-          const onLoaded = () => {
-            v.removeEventListener('loadedmetadata', onLoaded);
-            resolve();
-          };
-          const onError = () => {
-            v.removeEventListener('error', onError);
-            setCameraError('Failed to load camera stream');
-            resolve();
-          };
-          v.addEventListener('loadedmetadata', onLoaded);
-          v.addEventListener('error', onError);
-          // Fallback timeout
-          setTimeout(() => {
-            v.removeEventListener('loadedmetadata', onLoaded);
-            v.removeEventListener('error', onError);
-            if (!v.videoWidth || !v.videoHeight) {
-              setCameraError('Camera not ready. Try refreshing the page or allowing camera permission.');
-            }
-            resolve();
-          }, 3000);
-        });
-        try {
-          await videoRef.current.play();
-        } catch (playErr) {
-          setCameraError('Failed to play camera stream');
-        }
-      }
-      setCameraOn(true);
-    } catch (e) {
-      setCameraError('Camera permission denied or unavailable');
-    }
-  };
-
-  const flipCamera = async () => {
-    const next = cameraFacing === 'environment' ? 'user' : 'environment';
-    setCameraFacing(next);
-    if (cameraOn) {
-      stopCamera();
-      await startCamera();
-    }
-  };
-
-  const capturePhoto = async () => {
-    setCameraError('');
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas) return;
-
-    // Wait up to 2 seconds for video dimensions
-    let attempts = 0;
-    while ((!video.videoWidth || !video.videoHeight) && attempts < 20) {
-      await new Promise(r => setTimeout(r, 100));
-      attempts++;
-    }
-
-    if (!video.videoWidth || !video.videoHeight) {
-      setCameraError('Camera not ready. Ensure camera permission is granted and try again.');
-      return;
-    }
-
-    const width = video.videoWidth || 1280;
-    const height = video.videoHeight || 720;
-    canvas.width = width;
-    canvas.height = height;
-
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, width, height);
-
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
-    if (!blob) {
-      setCameraError('Failed to capture photo');
-      return;
-    }
-
-    const file = new File([blob], `capture_${Date.now()}.jpg`, { type: 'image/jpeg' });
-    setImage(file);
-
-    if (capturedUrl) URL.revokeObjectURL(capturedUrl);
-    setCapturedUrl(URL.createObjectURL(blob));
-
-    stopCamera();
-  };
-
   useEffect(() => {
-    return () => {
-      stopCamera();
-      if (capturedUrl) URL.revokeObjectURL(capturedUrl);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    api
+      .get('/staff/my-appointments')
+      .then((res) => {
+        const all = res.data?.data || [];
+        setAppointments(all);
+        // Auto-select appointment if passed via state or URL params
+        const appointmentIdFromState = location.state?.appointmentId;
+        const appointmentIdFromUrl = searchParams.get('appointment');
+        const selectedAppointmentId = appointmentIdFromState || appointmentIdFromUrl;
+        if (selectedAppointmentId) {
+          setAppointmentId(selectedAppointmentId);
+        }
+      })
+      .catch(() => {});
+  }, [location.state?.appointmentId, searchParams]);
 
   return (
     <div className="staff-portal-container">
@@ -312,7 +180,7 @@ export function UploadWorkPage() {
                 <span className="staff-title-icon">📸</span>
                 Upload Work
               </h1>
-              <p className="staff-subtitle">Complete service details and upload work photos</p>
+              <p className="staff-subtitle">Complete service details and upload work information</p>
             </div>
           </div>
         </div>
@@ -495,7 +363,7 @@ export function UploadWorkPage() {
               <div className="form-actions">
                 <Button
                   type="submit"
-                  disabled={saving || !image}
+                  disabled={saving}
                   className="submit-button upload-submit-btn"
                 >
                   {saving ? (
@@ -512,184 +380,6 @@ export function UploadWorkPage() {
                 </Button>
               </div>
             </form>
-          </Card>
-
-          {/* Image Capture Card */}
-          <Card className="image-capture-card">
-            <div className="capture-header">
-              <div className="capture-icon">📷</div>
-              <div>
-                <h2>Work Photos</h2>
-                <p>Capture or upload service photos</p>
-              </div>
-            </div>
-
-            <div className="capture-section">
-              {/* Camera Controls */}
-              <div className="camera-controls">
-                {!cameraOn ? (
-                  <button
-                    type="button"
-                    onClick={startCamera}
-                    className="camera-btn primary"
-                  >
-                    <span className="btn-icon">📷</span>
-                    Start Camera
-                  </button>
-                ) : (
-                  <div className="camera-active-controls">
-                    <button
-                      type="button"
-                      onClick={capturePhoto}
-                      className="camera-btn capture"
-                    >
-                      <span className="btn-icon">📸</span>
-                      Capture
-                    </button>
-                    <button
-                      type="button"
-                      onClick={flipCamera}
-                      className="camera-btn secondary"
-                    >
-                      <span className="btn-icon">🔄</span>
-                      Flip
-                    </button>
-                    <button
-                      type="button"
-                      onClick={stopCamera}
-                      className="camera-btn secondary"
-                    >
-                      <span className="btn-icon">⏹️</span>
-                      Stop
-                    </button>
-                  </div>
-                )}
-                
-                {image && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImage(null);
-                      if (capturedUrl) {
-                        URL.revokeObjectURL(capturedUrl);
-                        setCapturedUrl('');
-                      }
-                    }}
-                    className="camera-btn danger"
-                  >
-                    <span className="btn-icon">🗑️</span>
-                    Clear Image
-                  </button>
-                )}
-              </div>
-
-              {/* Camera Error */}
-              {cameraError && (
-                <div className="camera-error">
-                  <span className="error-icon">⚠️</span>
-                  {cameraError}
-                </div>
-              )}
-
-              {/* Camera View */}
-              {cameraOn && (
-                <div className="camera-view">
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    controls={false}
-                    disablePictureInPicture
-                    className="camera-video"
-                  />
-                  <canvas ref={canvasRef} className="hidden" />
-                  <div className="camera-overlay">
-                    <div className="capture-frame"></div>
-                    <div className="camera-hint">Position the work in the frame</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Captured Image Preview */}
-              {!cameraOn && capturedUrl && (
-                <div className="captured-preview">
-                  <div className="preview-header">
-                    <h3>Captured Photo</h3>
-                    <div className="preview-status success">
-                      <span className="status-icon">✅</span>
-                      Photo Ready
-                    </div>
-                  </div>
-                  <div className="preview-image">
-                    <img
-                      src={capturedUrl}
-                      alt="Captured work"
-                      className="preview-img"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* File Upload */}
-              <div className="file-upload-section">
-                <div className="upload-divider">
-                  <span>OR</span>
-                </div>
-                <div className="file-upload-area">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    capture="environment"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      if (file && file.size > 6 * 1024 * 1024) {
-                        setError('Image size must be 6 MB or less');
-                        if (fileInputRef.current) fileInputRef.current.value = '';
-                        setImage(null);
-                        return;
-                      }
-                      setImage(file);
-                      if (capturedUrl) {
-                        URL.revokeObjectURL(capturedUrl);
-                        setCapturedUrl('');
-                      }
-                    }}
-                    className="file-input"
-                    id="file-upload"
-                  />
-                  <label htmlFor="file-upload" className="file-upload-label">
-                    <div className="upload-icon">📁</div>
-                    <div className="upload-text">
-                      <h4>Choose File</h4>
-                      <p>Upload image from device (max 6MB)</p>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Image Status */}
-              <div className="image-status">
-                {image ? (
-                  <div className="status-card success">
-                    <div className="status-icon">✅</div>
-                    <div>
-                      <strong>Image Ready</strong>
-                      <p>{image.name || 'Captured photo'} ready for upload</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="status-card pending">
-                    <div className="status-icon">📷</div>
-                    <div>
-                      <strong>No Image</strong>
-                      <p>Capture or upload a work photo</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
           </Card>
         </div>
       </div>
