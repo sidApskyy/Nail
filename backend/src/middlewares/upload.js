@@ -40,4 +40,7 @@ const upload = multer({
   }
 });
 
-module.exports = { upload };
+// Optional upload middleware - doesn't fail if no file is provided
+const uploadOptional = upload.single('image');
+
+module.exports = { upload, uploadOptional };

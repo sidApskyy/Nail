@@ -100,11 +100,6 @@ export function UploadWorkPage() {
     }
 
     try {
-      if (!image) {
-        setError('Image is required');
-        return;
-      }
-
       const form = new FormData();
       form.append('appointment_id', appointmentId);
       form.append('name', name);
@@ -114,7 +109,11 @@ export function UploadWorkPage() {
       form.append('discount_amount', ((parseFloat(amount) * parseFloat(discount)) / 100).toFixed(2));
       form.append('total', total);
       form.append('description', description);
-      form.append('image', image);
+      
+      // Only append image if it exists
+      if (image) {
+        form.append('image', image);
+      }
 
       await api.post('/staff/upload-work', form, {
         headers: { 'Content-Type': 'multipart/form-data' }
