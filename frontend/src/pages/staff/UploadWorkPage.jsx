@@ -36,6 +36,13 @@ export function UploadWorkPage() {
         const selectedAppointmentId = appointmentIdFromState || appointmentIdFromUrl;
         if (selectedAppointmentId) {
           setAppointmentId(selectedAppointmentId);
+          
+          // Auto-fill customer details from selected appointment
+          const selectedAppointment = all.find(a => a.id === selectedAppointmentId);
+          if (selectedAppointment) {
+            setName(selectedAppointment.customer_name || '');
+            setNumber(selectedAppointment.customer_phone || '');
+          }
         }
       })
       .catch(() => {});
@@ -134,23 +141,6 @@ export function UploadWorkPage() {
     }
   };
 
-  useEffect(() => {
-    api
-      .get('/staff/my-appointments')
-      .then((res) => {
-        const all = res.data?.data || [];
-        setAppointments(all);
-        // Auto-select appointment if passed via state or URL params
-        const appointmentIdFromState = location.state?.appointmentId;
-        const appointmentIdFromUrl = searchParams.get('appointment');
-        const selectedAppointmentId = appointmentIdFromState || appointmentIdFromUrl;
-        if (selectedAppointmentId) {
-          setAppointmentId(selectedAppointmentId);
-        }
-      })
-      .catch(() => {});
-  }, [location.state?.appointmentId, searchParams]);
-
   return (
     <div className="staff-portal-container">
       {/* Animated background */}
@@ -164,7 +154,6 @@ export function UploadWorkPage() {
               height: `${100 + i * 20}px`,
               left: `${-5 + i * 18}%`,
               top: `${-5 + i * 15}%`,
-              animationDelay: `${i * 2}s`,
               animationDuration: `${15 + i * 3}s`
             }}
           />
